@@ -1,0 +1,115 @@
+name: CI
+
+# Pull requests and pushes to main only. Feature branches get their run through
+# the pull request they open, so pushing one does not burn two runs on the same
+# commit.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# The default token only ever needs to read this repository: nothing here
+# comments, tags, or publishes.
+permissions:
+  contents: read
+
+# A new push supersedes the run its predecessor started on the same ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The floor the test suite is held to. Argus reads privileged host state and
+  # grades it; a regression in the parsers or the correlation engine is a wrong
+  # answer about a machine's attack surface, not a cosmetic bug.
+  MIN_COVERAGE: "80.0"
+
+jobs:
+  test:
+    name: build & test
+    # Pinned rather than ubuntu-latest: an image roll should be something this
+    # repository steps into deliberately, not something that lands mid-review.
+    runs-on: ubuntu-24.04
+
+    steps:
+      # Every action is pinned to the commit its tag pointed at, with the tag
+      # kept in the comment for readability. A tag can be moved; a commit hash
+      # cannot, so this is what stops an upstream compromise from silently
+      # entering the pipeline.
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          # go.mod is the single source of truth for the toolchain version, so
+          # the workflow never drifts from what the module declares.
+          go-version-file: go.mod
+          check-latest: false
+          cache: true
+
+      - name: Verify module checksums
+        run: go mod verify
+
+      - name: Check formatting
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "gofmt would rewrite these files:" >&2
+            echo "$unformatted" >&2
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      # The race detector matters here: the TUI polls four collectors
+      # concurrently and folds their results into one model.
+      - name: Test
+        run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
+
+      - name: Enforce coverage floor
+        run: |
+          total="$(go tool cover -func=coverage.out | awk '/^total:/ {print $3}' | tr -d '%')"
+          echo "total coverage: ${total}% (floor ${MIN_COVERAGE}%)"
+          awk -v total="$total" -v floor="$MIN_COVERAGE" 'BEGIN {
+            if (total + 0 < floor + 0) {
+              printf "coverage %.1f%% is below the %.1f%% floor\n", total, floor > "/dev/stderr"
+              exit 1
+            }
+          }'
+
+      - name: Upload coverage profile
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage
+          path: coverage.out
+          retention-days: 7
+
+  vuln:
+    name: govulncheck
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          check-latest: false
+          cache: true
+
+      # Pinned to a released version, not @latest: a scanner that changes under
+      # you turns a green history red for reasons unrelated to the commit that
+      # triggered the run.
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
+
+      - name: Scan
+        run: govulncheck ./...

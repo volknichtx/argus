@@ -1,0 +1,16 @@
+Netid State  Recv-Q Send-Q                            Local Address:Port  Peer Address:PortProcess
+udp   UNCONN 0      0                                 10.1.0.1:53         0.0.0.0:*   
+udp   UNCONN 0      0                                0.0.0.0%virbr0:67         0.0.0.0:*   
+udp   UNCONN 0      0                                10.0.0.10:50312      0.0.0.0:*    users:(("helper",pid=3343,fd=37))
+udp   UNCONN 0      0                                10.0.0.10:36215      0.0.0.0:*    users:(("helper",pid=3343,fd=38))
+udp   UNCONN 0      0                                10.0.0.10:53891      0.0.0.0:*    users:(("helper",pid=3343,fd=32))
+udp   UNCONN 0      0                                10.0.0.10:38011      0.0.0.0:*    users:(("helper",pid=3343,fd=35))
+udp   UNCONN 0      0      [2001:db8:1::10]:40022         [::]:*    users:(("helper",pid=3343,fd=36))
+udp   UNCONN 0      0      [2001:db8:1::10]:56858         [::]:*    users:(("helper",pid=3343,fd=34))
+udp   UNCONN 0      0                                             *:58096            *:*    users:(("webbrowser",pid=3253,fd=265))
+udp   UNCONN 0      0      [2001:db8:1::10]:47882         [::]:*    users:(("helper",pid=3343,fd=33))
+udp   UNCONN 0      0              [fe80::3]%eno1:546           [::]:*   
+udp   UNCONN 0      0      [2001:db8:1::10]:39116         [::]:*    users:(("helper",pid=3343,fd=31))
+tcp   LISTEN 0      4096                                  127.0.0.1:35061      0.0.0.0:*   
+tcp   LISTEN 0      4096                                  127.0.0.1:11434      0.0.0.0:*   
+tcp   LISTEN 0      32                                10.1.0.1:53         0.0.0.0:*   

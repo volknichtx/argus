@@ -1,0 +1,43 @@
+# Build output
+/argus
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binaries and coverage
+*.test
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Environment
+.env
+.env.local
+
+# Editors and IDEs.
+# .idea records the project path, the git remote and the account name, so it must
+# never be committed. Note that `zip -r` packs it even though git ignores it —
+# use `git archive` when you need an archive of this repository.
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Local scratch
+*.log
+*.zip
+*.tar.gz

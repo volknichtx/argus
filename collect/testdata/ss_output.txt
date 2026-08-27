@@ -1,0 +1,5 @@
+Netid State  Recv-Q Send-Q               Local Address:Port  Peer Address:PortProcess                           
+udp   UNCONN 0      0      [fe80::2]:45680            *:*    users:(("python3",pid=2407,fd=5))
+tcp   LISTEN 0      0                        127.0.0.1:45678      0.0.0.0:*    users:(("python3",pid=2407,fd=3))
+tcp   LISTEN 0      0                            [::1]:45679            *:*    users:(("python3",pid=2407,fd=4))
+
