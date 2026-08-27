@@ -111,7 +111,7 @@ the noise.
 ## Install
 
 ```sh
-go install github.com/volknichtx/argus@latest
+go install github.com/volknichtx/argus@v0.1.0
 ```
 
 Or build from source:
